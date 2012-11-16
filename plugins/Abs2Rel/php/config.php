@@ -62,7 +62,7 @@ class Abs2Rel extends MTPlugin {
                     do {
                         $f = array_shift($basepath);
                         $t = array_shift($targetpath);
-                    } while ($f == $t);
+                    } while ($f === $t);
                     array_unshift($basepath, $f);
                     array_unshift($targetpath, $t);
                     $bcount = count($basepath);
