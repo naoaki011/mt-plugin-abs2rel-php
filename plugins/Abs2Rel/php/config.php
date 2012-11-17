@@ -7,10 +7,11 @@ class Abs2Rel extends MTPlugin {
         'key'  => 'abs2rel',
         'author_name' => 'Alfasado Inc.',
         'author_link' => 'http://alfasado.net/',
-        'version' => '0.1',
+        'version' => '0.2',
         'description' => 'Convert absolute path to relative path.',
         'config_settings' => array(
             'DynamicAbs2Rel' => array( 'default' => 0 ),
+            'ProxyedSite' => array( 'default' => '' ),
         ),
         'callbacks' => array(
             'build_page' => 'filter_build_page',
@@ -44,7 +45,20 @@ class Abs2Rel extends MTPlugin {
             $url_pattern = '/((<[^>]+\s(?:src|href|action)\=[\"\'])(https?:\/\/[^\/]+)\/([^\"\']+)([\"\']))/';
             preg_match_all($url_pattern, $content, $matches, PREG_SET_ORDER);
             foreach( $matches as $value ){
-                if ( preg_replace('/\/$/', '', $app->base) === $value[3]) {
+                $enablerelative = 0;
+                if ( $ctx->mt->config('ProxyedSite') ) {
+                    $siteurls = explode(',', $ctx->mt->config('ProxyedSite'));
+                    foreach($siteurls as $siteurl) {
+                        if ( preg_replace('/\/$/', '', $siteurl) === $value[3]) {
+                            $enablerelative = 1;
+                        }
+                    }
+                } else {
+                    if ( preg_replace('/\/$/', '', $app->base) === $value[3]) {
+                        $enablerelative = 1;
+                    }
+                }
+                if ( $enablerelative ) {
                     $target = $value[4];
                     if (preg_match('/\/$/', $target)) {
                         $target = preg_replace('/\/$/', '', $target);
