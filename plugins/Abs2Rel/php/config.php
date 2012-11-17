@@ -47,10 +47,22 @@ class Abs2Rel extends MTPlugin {
                 if ( preg_replace('/\/$/', '', $app->base) === $value[3]) {
                     $target = $value[4];
                     if (preg_match('/\/$/', $target)) {
+                        $target = preg_replace('/\/$/', '', $target);
                         if (preg_match('/^\//', $plugin->get_config_value('index', system))) {
                             $target .= $plugin->get_config_value('index', system);
                         } else {
                             $target .= '/' . $plugin->get_config_value('index', system);
+                        }
+                    } else {
+                        if (preg_match('/\/[^\.]+$/', $target)) {
+                            $lastpath = preg_replace('/^.*\/([^\.]+)$/', '$1', $target);
+                            if (preg_match('/[^\.]/', $lastpath)) {
+                                if (preg_match('/^\//', $plugin->get_config_value('index', system))) {
+                                    $target .= $plugin->get_config_value('index', system);
+                                } else {
+                                    $target .= '/' . $plugin->get_config_value('index', system);
+                                }
+                            }
                         }
                     }
                     //
